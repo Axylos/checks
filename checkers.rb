@@ -1,34 +1,50 @@
 #!/usr/bin/env ruby
 require "debugger"
+require "./display.rb"
+require "./make_board.rb"
 
 class Piece
   
-  def initialize(color, position)
+  def initialize(color, position, board)
     @color = color
     @position = position
-  end
-  
-  def perform_slide(dir)
-    
-    
+    @board = board
   end
   
   def move_diffs
+    row, col = @position
+    diff = green? ? -1 : 1
+    [
+      [row + diff, col - 1],
+      [row + diff, col + 1],
+      [row + (diff * 2), col - 1],
+      [row + (diff * 2), col + 1]
+    ]
+  end
+  
+  def valid_moves
     valid_moves = []
     row, col = @position
     diff = green? ? -1 : 1
     
-    slide_left = [row + diff, col - 1]
-    slide_right = [row + diff, col + 1]
+    valid_moves << [row + diff, col - 1]
+    valid_moves << [row + diff, col + 1]
     
-    jump_left = [row + (diff * 2), col - 1]
-    jump_right = [row + (diff * 2), col + 1]
+    valid_moves << [row + (diff * 2), col - 1]
+    valid_moves << [row + (diff * 2), col + 1]
     
-     
+    valid_moves.reject { |move| @board[move].occupied? }
+    
   end
   
-  def perform_jump
+  def perform_jump(target)
+    return false if !(valid_moves.include?(target))
+  end
+  
+  def perform_slide(target)
+    return false if !(valid_moves.include?(target))
     
+    move(target)
   end
   
   def green?
@@ -39,10 +55,17 @@ class Piece
     !green?
   end
   
+  def move(target)
+    @position = target
+    @board.move_piece(self, target)
+  end
+  
 end
 
 
 class Board
+  include GenerateBoard
+  include DisplayBoard
   
   def initialize
     @grid = Array.new(8) { Array.new(8) { nil } }
@@ -51,78 +74,6 @@ class Board
     
     make_starting_pieces
   end
-  
-  def make_board
-    8.times do |row|
-      8.times do |col|
-
-        new_tile = Tile.new(row, col, self)
-        
-        add_tile(new_tile)
-      end
-    end
-
-  end
-  
-  def add_tile(tile)
-    self[tile.location] = tile
-  end
-  
-  def [](pos)
-    row, col = pos
-    @grid[row][col]
-  end
-  
-  def []=(pos, mark)
-    row, col = pos
-    @grid[row][col] = mark
-  end
-  
-  def display_board
-    8.times do |row|
-      line = []
-      
-      8.times do |col|
-        square = self[[row, col]]
-        if square.empty?
-          if square.color == :black
-            line << "_*_"
-          else
-            line << "|_|"
-          end
-        else
-          if square.piece.green?
-            line << "_G_"
-          else
-            line << "_O_"
-          end
-        end
-        
-      end
-      puts line.join("")
-    end
-    
-  end
-  
-  def make_starting_pieces
-   8.times do |row|
-      
-      8.times do |col|
-        pos = [row, col]
-        place = self[pos]
-        if place.is_black?
-          if row < 3
-            place.add_piece Piece.new(:orange, [row, col]) 
-          elsif row > 4
-            place.add_piece Piece.new(:green, [row, col])
-          end
-        end
-      end
-    end
-    
-  end
-  
-  
   
 end
 
