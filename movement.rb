@@ -59,18 +59,19 @@ module Movement
     return false unless valid_slide?(target)
     
     @board.move_piece(self, target)
-    
-    @position = target
-    king_me if promoted?
-    true
+    handle_move(target)
   end
   
   def perform_jump(target)
     return false unless valid_jump?(target)
     
     @board.move_piece(self, target)
-    
     handle_jumped_piece(target)
+    
+    handle_move(target)
+  end
+  
+  def handle_move(target)
     @position = target
     king_me if promoted?
     true
@@ -79,6 +80,50 @@ module Movement
   def move(target)
     return false unless perform_slide(target) || perform_jump(target)
     true
+  end
+  
+  def perform_moves!(*move_sequence)
+    many = move_sequence.count > 1
+    
+    move_sequence.each do |move|
+      if perform_slide move
+        raise InvalidMoveError if many
+        true
+      elsif perform_jump move
+        true
+      else
+        raise InvalidMoveError
+      end
+      
+    end
+  end
+  
+  def valid_move_seq?(*sequence)
+    new_board = @board.deep_dup
+    
+    piece = new_board[piece.position].piece
+    
+    begin
+      piece.perform_moves!(sequence)
+    rescue InvalidMoveError
+      return false
+    else
+      return true
+    end
+    
+  end
+  
+  def perform_moves(*sequence)
+    if valid_move_seq?(sequence) 
+      perform_moves!(sequence) 
+    else
+      raise InvalidMoveError
+    end
+  end
+  
+  def handle_jumped_piece(target)
+    dead_piece = get_dead_piece(target)
+    kill_piece dead_piece
   end
   
 end

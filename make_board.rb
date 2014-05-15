@@ -34,9 +34,9 @@ module GenerateBoard
         if place.is_black?
 
           if row < 3
-            place.add_piece Piece.new(:orange, [row, col], self) 
+            place.add_piece(Piece.new(:orange, pos, self)) 
           elsif row > 4
-            place.add_piece Piece.new(:green, [row, col], self)
+            place.add_piece(Piece.new(:green, pos, self))
           end
 
         end

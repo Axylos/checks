@@ -24,6 +24,7 @@ class Tile
   end
   
   def add_piece(piece)
+    @board.add_piece(piece) unless piece.nil?
     @piece = piece
   end
   
