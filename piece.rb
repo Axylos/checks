@@ -1,6 +1,9 @@
+require "./movement.rb"
+
 
 class Piece
-  
+  include Movement
+    
   attr_reader :position, :color, :jumped
   
   def initialize(color, position, board)
@@ -8,15 +11,13 @@ class Piece
     @position = position
     @board = board
     @jumped = Hash.new
+    @deltas = move_diffs
+    @king = false
   end
-  
-  
   
   def die
     @position = nil
   end
-  
-  
   
   def has_enemy?(pos)
     tile = @board[pos]
@@ -28,15 +29,11 @@ class Piece
     piece.color != @color
   end
   
-  
-  
   def kill_piece(piece)
     @board.remove_piece(piece)
     piece.die
   end
-  
-  
-  
+
   def green?
     @color == :green
   end
@@ -45,6 +42,17 @@ class Piece
     !green?
   end
   
+  def promoted?
+    if green?
+      true if @position[0] == 0
+    else
+      true if @position[0] == 7
+    end
+    false
+  end
   
-  
+  def king_me
+    @king = true
+  end
+ 
 end

@@ -3,57 +3,61 @@ module Movement
   def move_diffs
     row, col = @position
     diff = green? ? -1 : 1
-    {
-      :slide => 
-                [[row + diff, col - 1],
-                [row + diff, col + 1]],
-                
-      :jump =>  [[row + (diff * 2), col - 2],
-                [row + (diff * 2), col + 2]]
+    
+      moves = {
+
+                          :left => { 
+                            :slide => [row + diff, col - 1],
+                            :jump =>  [row + (diff * 2), col - 2]
+                          },
+
+                          :right => {
+                            :slide => [row + diff, col + 1],
+                            :jump => [row + (diff * 2), col + 2]
+                          }
+
     }
+    
+    if @king
+     
+     moves[:king_left] = { 
+                              :slide => [row - diff, col - 1],
+                              :jump => [row - (diff * 2), col - 2]
+                          }
+      
+     moves[:king_right] = {
+                              :slide => [row - diff, col + 1],
+                              :jump => [row - (diff * 2), col + 2]
+                          }
+    end
+    moves
   end
   
   def valid_moves
     differences = move_diffs
     valids = Hash.new { |h,k| h[k] = [] }
     
-    left_slide = differences[:slide].first
-    right_slide = differences[:slide].last
     
-    left_jump = differences[:jump].first
-    right_jump = differences[:jump].last
+    differences.each do |dir, movements|
+      slide = movements[:slide]
+      jump = movements[:jump]
+      
+      
+      if @board[slide].empty? 
+        valids[:slides] << slide
+      
+      elsif has_enemy?(slide)
+        @jumped[:left] = [@board[slide].piece, jump]
+        valids[:jumps] << jump
+      
+      end
     
-    if @board[left_slide].empty? 
-      valids[:slides] << left_slide
-      
-    elsif has_enemy?(left_slide)
-      
-      @jumped[:left] = [@board[left_slide].piece, left_jump]
-      
-      valids[:jumps] << left_jump
     end
     
-    if @board[right_slide].empty?
-      valids[:slides] << right_slide
-    
-    elsif has_enemy?(right_slide)
-      
-      @jumped[:right] = [@board[right_slide].piece, right_jump]
-      
-      valids[:jumps] << right_jump
-    end
     
     valids
-    
   end
-  
-  def perform_slide(target)
-    return false unless valid_slide?(target)
-    
-    @position = target
-    true
-  end
-  
+ 
   def valid_jump?(target)
     valids = valid_moves
     valids[:jumps].include?(target)
@@ -65,6 +69,13 @@ module Movement
     valids[:slides].include?(target)
   end
   
+  def perform_slide(target)
+    return false unless valid_slide?(target)
+    
+    @position = target
+    true
+  end
+  
   def perform_jump(target)
     return false unless valid_jump?(target)
     if target == @jumped[:left][1]
@@ -74,12 +85,15 @@ module Movement
     end
     
     @position = target
+
     
     true
   end
   
   def move(target)
-    perform_slide(target) || perform_jump(target)
+    return false unless perform_slide(target) || perform_jump(target)
+    king_me if promoted?
+    true
   end
   
 end
