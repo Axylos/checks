@@ -15,6 +15,7 @@ class Board
   end
   
   def move_piece(piece, target)
+    puts "called"
     self[piece.position].remove_piece
     self[target].add_piece piece
   end

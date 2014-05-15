@@ -24,11 +24,14 @@ class Game
    @current_player = @player1
    
    until winner?
+     
+     begin
+       
      @board.display
      puts "It is #{@current_player.color}'s turn!"
      move = @current_player.get_move
      
-     begin
+     
        make_move move
      rescue InvalidMoveError
        puts "Invalid Move!"
@@ -47,13 +50,14 @@ class Game
   end
   
   def make_move(moves)
-    
     start_pos = moves.shift
+    raise InvalidMoveError if start_pos.any? { |i| !i.between?(0, 7) }
     piece = @board[start_pos].piece
     raise "Not your piece!" if piece.color != @current_player.color
     
     if moves.count > 1
       piece.perform_moves(moves)
+      return
     else
       @board.move(start_pos, moves.last)
     end

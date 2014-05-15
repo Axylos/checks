@@ -51,6 +51,7 @@ module Movement
   end
   
   def valid_slide?(target)
+    
     valids = valid_moves
     valids[:slides].include?(target)
   end
@@ -82,7 +83,7 @@ module Movement
     true
   end
   
-  def perform_moves!(*move_sequence)
+  def perform_moves!(move_sequence)
     many = move_sequence.count > 1
     
     move_sequence.each do |move|
@@ -98,10 +99,10 @@ module Movement
     end
   end
   
-  def valid_move_seq?(*sequence)
+  def valid_move_seq?(sequence)
     new_board = @board.deep_dup
-    
-    piece = new_board[piece.position].piece
+
+    piece = new_board[@position].piece
     
     begin
       piece.perform_moves!(sequence)
@@ -113,7 +114,7 @@ module Movement
     
   end
   
-  def perform_moves(*sequence)
+  def perform_moves(sequence)
     if valid_move_seq?(sequence) 
       perform_moves!(sequence) 
     else
