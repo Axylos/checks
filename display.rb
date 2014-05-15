@@ -1,5 +1,6 @@
 module DisplayBoard
   def display_board
+    puts "   0  1  2  3  4  5  6  7"
     8.times do |row|
       line = []
       
@@ -20,6 +21,7 @@ module DisplayBoard
         end
         
       end
+      print row, " "
       puts line.join("")
     end
     
