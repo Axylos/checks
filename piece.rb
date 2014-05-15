@@ -116,7 +116,7 @@ class Piece
   end
   
   def move(target)
-   puts "what" unless perform_slide(target) || perform_jump(target)
+    perform_slide(target) || perform_jump(target)
   end
   
 end

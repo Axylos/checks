@@ -1,30 +1,21 @@
 module DisplayBoard
-  def display_board
+  def display
     puts "   0  1  2  3  4  5  6  7"
     8.times do |row|
       line = []
       
-      8.times do |col|
+      rows = (0..7).map do |col|
         square = self[[row, col]]
+        
         if square.empty?
-          if square.color == :black
-            line << "_*_"
-          else
-            line << "|_|"
-          end
+          square.color == :black ? "_*_" : "|_|"
         else
-          if square.piece.green?
-            line << "_G_"
-          else
-            line << "_O_"
-          end
+          square.piece.green? ? "_G_" : "_O_"
         end
         
       end
       print row, " "
-      puts line.join("")
+      puts rows.join("")
     end
-    
   end
-
 end

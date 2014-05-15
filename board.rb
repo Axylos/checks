@@ -1,3 +1,5 @@
+require 'debugger'
+
 class Board
   include GenerateBoard
   include DisplayBoard
@@ -9,8 +11,8 @@ class Board
   end
   
   def move_piece(piece, target)
-    self[piece.location] = nil
-    self[target] = piece
+    self[piece.position].remove_piece
+    self[target].add_piece piece
   end
   
   def move(start_pos, end_pos)
@@ -23,6 +25,8 @@ class Board
       puts "yay"
       start_tile.remove_piece
       end_tile.add_piece piece
+      
+      move_piece(piece, end_pos)
     else
       "You can't move there!"
       return false
