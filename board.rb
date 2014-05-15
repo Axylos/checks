@@ -22,11 +22,9 @@ class Board
     piece = start_tile.piece
     
     if piece.move(end_pos)
-      puts "yay"
       start_tile.remove_piece
       end_tile.add_piece piece
       
-      move_piece(piece, end_pos)
     else
       "You can't move there!"
       return false

@@ -1,6 +1,7 @@
 require "./movement.rb"
 
-
+class InvalidMoveError < StandardError
+end
 class Piece
   include Movement
     
@@ -27,9 +28,25 @@ class Piece
     piece.color != @color
   end
   
+  def king?
+    @king == true
+  end
+  
+  def handle_jumped_piece(target)
+    dead_piece = get_dead_piece(target)
+    kill_piece dead_piece
+  end
+  
   def kill_piece(piece)
     @board.remove_piece(piece)
     piece.die
+  end
+  
+  def get_dead_piece(target)
+    jumps = move_diffs
+    move = jumps.select { |slide, jump| jump == target }
+    jumper = move[0][0]
+    @board[jumper].piece
   end
 
   def green?
@@ -40,15 +57,18 @@ class Piece
     !green?
   end
   
-  def perform_moves!(move_sequence)
+  def perform_moves!(*move_sequence)
     many = move_sequence.count > 1
     
     move_sequence.each do |move|
-      
+      binding.pry
       if perform_slide move
         raise InvalidMoveError if many
+        true
+      elsif perform_jump move
+        true
       else
-        perform_jump move
+        raise InvalidMoveError
       end
       
     end

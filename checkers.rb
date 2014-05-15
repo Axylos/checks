@@ -11,11 +11,13 @@ b = Board.new
 
 b.move [5, 2], [4, 3]
 b.move [2, 3], [3, 4]
+b.move [5, 0], [4, 1]
+b.move [4, 3], [3, 2]
+b.move [6, 1], [5, 2]
+p = b[[2, 1]].piece
 
-piece = b[[3, 4]].piece
-dead = b[[4, 3]].piece
 
-dud = b[[2, 3]].piece
+
 b.display
 pry
 
