@@ -25,7 +25,14 @@ class Board
       end_tile.add_piece piece
     else
       "You can't move there!"
+      return false
     end
+    true
+  end
+  
+  def remove_piece(piece)
+    pos = piece.position
+    self[pos].remove_piece
   end
   
 end

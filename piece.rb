@@ -1,12 +1,13 @@
 
 class Piece
   
-  attr_reader :position, :color
+  attr_reader :position, :color, :jumped
   
   def initialize(color, position, board)
     @color = color
     @position = position
     @board = board
+    @jumped = Hash.new
   end
   
   def move_diffs
@@ -17,14 +18,18 @@ class Piece
                 [[row + diff, col - 1],
                 [row + diff, col + 1]],
                 
-      :jump =>  [[row + (diff * 2), col - 1],
-                [row + (diff * 2), col + 1]]
+      :jump =>  [[row + (diff * 2), col - 2],
+                [row + (diff * 2), col + 2]]
     }
+  end
+  
+  def die
+    @position = nil
   end
   
   def valid_moves
     differences = move_diffs
-    valids = []
+    valids = Hash.new { |h,k| h[k] = [] }
     
     left_slide = differences[:slide].first
     right_slide = differences[:slide].last
@@ -33,15 +38,23 @@ class Piece
     right_jump = differences[:jump].last
     
     if @board[left_slide].empty? 
-      valids << left_slide
-    elsif @board[left_jump].empty? && has_enemy?(left_slide)
-      valid_moves << right_jump
+      valids[:slides] << left_slide
+      
+    elsif has_enemy?(left_slide)
+      
+      @jumped[:left] = [@board[left_slide].piece, left_jump]
+      
+      valids[:jumps] << left_jump
     end
     
     if @board[right_slide].empty?
-      valids << right_slide
-    elsif @board[right_jump].empty? && has_enemy?(right_slide)
-      valids << right_jump
+      valids[:slides] << right_slide
+    
+    elsif has_enemy?(right_slide)
+      
+      @jumped[:right] = [@board[right_slide].piece, right_jump]
+      
+      valids[:jumps] << right_jump
     end
     
     valids
@@ -51,26 +64,44 @@ class Piece
   def has_enemy?(pos)
     tile = @board[pos]
     
-    tile.occupied? && enemy?(tile.piece) 
+    enemy?(tile.piece) 
   end
   
   def enemy?(piece)
     piece.color != @color
   end
   
-  def valid?(target)
-    valid_moves.include? target
+  def valid_jump?(target)
+    valids = valid_moves
+    valids[:jumps].include?(target)
+  end
+  
+  def valid_slide?(target)
+    valids = valid_moves
+    
+    valids[:slides].include?(target)
   end
   
   def perform_jump(target)
-    return false unless valid?(target)
+    return false unless valid_jump?(target)
+    if target == @jumped[:left][1]
+      kill_piece(@jumped[:left][0])
+    else
+      kill_piece(@jumped[:right][0])
+    end
     
     @position = target
+    
     true
   end
   
+  def kill_piece(piece)
+    @board.remove_piece(piece)
+    piece.die
+  end
+  
   def perform_slide(target)
-    return false unless valid?(target)
+    return false unless valid_slide?(target)
     
     @position = target
     true
@@ -85,7 +116,7 @@ class Piece
   end
   
   def move(target)
-    perform_slide(target) || perform_jump(target)
+   puts "what" unless perform_slide(target) || perform_jump(target)
   end
   
 end
