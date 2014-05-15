@@ -1,8 +1,6 @@
 class Tile
   
   attr_reader :location, :color, :piece
-  attr_accessor
-  
   
   def initialize(row, col, board)
     

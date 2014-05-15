@@ -4,7 +4,6 @@ module GenerateBoard
       8.times do |col|
 
         new_tile = Tile.new(row, col, self)
-      
         add_tile(new_tile)
       end
     end
@@ -27,16 +26,19 @@ module GenerateBoard
   
   def make_starting_pieces
    8.times do |row|
-      
-      8.times do |col|
+     8.times do |col|
+
         pos = [row, col]
         place = self[pos]
+
         if place.is_black?
+
           if row < 3
             place.add_piece Piece.new(:orange, [row, col], self) 
           elsif row > 4
             place.add_piece Piece.new(:green, [row, col], self)
           end
+
         end
       end
     end

@@ -37,23 +37,21 @@ module Movement
     differences = move_diffs
     valids = Hash.new { |h,k| h[k] = [] }
     
-    
     differences.each do |dir, movements|
+      
       slide = movements[:slide]
       jump = movements[:jump]
-      
       
       if @board[slide].empty? 
         valids[:slides] << slide
       
       elsif has_enemy?(slide)
-        @jumped[:left] = [@board[slide].piece, jump]
+        
+        @jumped[dir] = [@board[slide].piece, jump]
         valids[:jumps] << jump
       
       end
-    
     end
-    
     
     valids
   end
@@ -65,7 +63,6 @@ module Movement
   
   def valid_slide?(target)
     valids = valid_moves
-    
     valids[:slides].include?(target)
   end
   
@@ -73,11 +70,14 @@ module Movement
     return false unless valid_slide?(target)
     
     @position = target
+    king_me if promoted?
+    
     true
   end
   
   def perform_jump(target)
     return false unless valid_jump?(target)
+    
     if target == @jumped[:left][1]
       kill_piece(@jumped[:left][0])
     else
@@ -85,14 +85,13 @@ module Movement
     end
     
     @position = target
-
+    king_me if promoted?
     
     true
   end
   
   def move(target)
     return false unless perform_slide(target) || perform_jump(target)
-    king_me if promoted?
     true
   end
   

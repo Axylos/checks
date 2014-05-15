@@ -11,7 +11,6 @@ class Piece
     @position = position
     @board = board
     @jumped = Hash.new
-    @deltas = move_diffs
     @king = false
   end
   
@@ -21,7 +20,6 @@ class Piece
   
   def has_enemy?(pos)
     tile = @board[pos]
-    
     enemy?(tile.piece) 
   end
   
@@ -40,6 +38,20 @@ class Piece
   
   def orange?
     !green?
+  end
+  
+  def perform_moves!(move_sequence)
+    many = move_sequence.count > 1
+    
+    move_sequence.each do |move|
+      
+      if perform_slide move
+        raise InvalidMoveError if many
+      else
+        perform_jump move
+      end
+      
+    end
   end
   
   def promoted?
